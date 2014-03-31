@@ -30,6 +30,20 @@ end
 
 local tconcat = table.concat
 
+-- Configuration
+config = {
+  debug = false,
+}
+
+-- Functions
+
+local function dolog(msg)
+  if config.debug then
+    local fh = io.open('/tmp/adscaptcha.log', 'a+')
+    return fh:write(("%s: %s\n"):format(os.date('%Y-%m-%d %H:%M:%S', os.time()), debug.print_r(msg, 1)))
+  end
+end
+
 local function api_call(uri, request_body)
   if request_body == nil then
     request_body = {}
@@ -57,8 +71,6 @@ local function api_call(uri, request_body)
     output.response = json.decode(tconcat(response_body) or '')
   end
 
-  m.debug.print_r(response_body)
-
   return output
 end
 
@@ -84,26 +96,20 @@ t<tr><td>Paste code here:</td><td><input type="text" name="adscaptcha_challenge_
   return result 
 end
 
-function m.validateCaptcha(captchaId, privateKey)
-  local host, path, data, result
+function m.validateCaptcha(captchaId, privateKey, challengeCode, userResponse, remoteAddress)
+  local host, path, data
 
   path = 'Validate.aspx'
-  data = {
-    CaptchaId = captchaId,
-    PrivateKey = privateKey,
-    ChallengeCode = _POST.adscaptcha_challenge_field,
-    UserResponse = _POST.adscaptcha_response_field,
-    RemoteAddress = _SERVER 'REMOTE_ADDR'
-  }
 
-  data = 'CaptchaId=' .. captchaId ..
-        '&PrivateKey='    .. privateKey ..
-        '&ChallengeCode=' .. _POST.adscaptcha_challenge_field ..
-        '&UserResponse='  .. _POST.adscaptcha_response_field ..
-        '&RemoteAddress=' .. _SERVER 'REMOTE_ADDR'
+  data = (
+    'CaptchaId=%s&' ..
+    'PrivateKey=%s&' ..
+    'ChallengeCode=%s&' ..
+    'UserResponse=%s&' ..
+    'RemoteAddress=%s'
+  ):format(captchaId, privateKey, challengeCode, userResponse, remoteAddress)
 
-  result = api_call(path, data)
-  return result
+  return api_call(path, data)
 end
 
 return m
