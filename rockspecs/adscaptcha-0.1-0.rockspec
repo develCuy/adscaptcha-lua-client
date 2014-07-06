@@ -6,6 +6,7 @@ source = {
 }
 description = {
   summary = "Port of minteye's AdsCaptcha library to Lua - HEAD",
+  detailed = 'Current development branch.',
   homepage = 'https://github.com/develCuy/adscaptcha-lua-client',
   license = 'GPL-3',
   maintainer = 'Fernando Paredes Garcia <fernando@develcuy.com>',
